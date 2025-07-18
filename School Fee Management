@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>School Fee Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background: #f9f9f9;
+        }
+        h2 {
+            text-align: center;
+        }
+        form, table {
+            margin: 20px auto;
+            width: 50%;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        input[type="text"], input[type="number"] {
+            width: 95%;
+            padding: 8px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input[type="submit"] {
+            background: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        table {
+            border-collapse: collapse;
+            width: 80%;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>School Fee Management System</h2>
+
+    <form method="post" action="">
+        <label>Student Name:</label><br>
+        <input type="text" name="student_name" required><br>
+        
+        <label>Total Fee:</label><br>
+        <input type="number" name="total_fee" required><br>
+        
+        <label>Amount Paid:</label><br>
+        <input type="number" name="amount_paid" required><br>
+
+        <input type="submit" name="submit" value="Add Fee Record">
+    </form>
+
+    <?php
+    // Database connection
+    $conn = new mysqli('localhost', 'root', '', 'school_fees');
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    // Insert Record
+    if(isset($_POST['submit'])){
+        $student_name = $_POST['student_name'];
+        $total_fee = $_POST['total_fee'];
+        $amount_paid = $_POST['amount_paid'];
+
+        $stmt = $conn->prepare("INSERT INTO students (student_name, total_fee, amount_paid) VALUES (?, ?, ?)");
+        $stmt->bind_param("sdd", $student_name, $total_fee, $amount_paid);
+        $stmt->execute();
+        echo "<p style='color: green; text-align:center;'>Record Added Successfully!</p>";
+    }
+
+    // Fetch and Display Records
+    $result = $conn->query("SELECT * FROM students");
+
+    if ($result->num_rows > 0) {
+        echo "<table>";
+        echo "<tr><th>ID</th><th>Student Name</th><th>Total Fee</th><th>Amount Paid</th><th>Balance</th></tr>";
+        while($row = $result->fetch_assoc()) {
+            echo "<tr>
+                    <td>".$row['id']."</td>
+                    <td>".$row['student_name']."</td>
+                    <td>".$row['total_fee']."</td>
+                    <td>".$row['amount_paid']."</td>
+                    <td>".$row['balance']."</td>
+                  </tr>";
+        }
+        echo "</table>";
+    } else {
+        echo "<p style='text-align:center;'>No records found.</p>";
+    }
+
+    $conn->close();
+    ?>
+
+</body>
+</html>
